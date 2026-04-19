@@ -816,6 +816,16 @@
                     </select>
                 </div>
             </div>
+            <div class="edit-row">
+                <div class="modal-field">
+                    <label>Registration Date</label>
+                    <input type="date" id="edit-created">
+                </div>
+                <div class="modal-field">
+                    <label>Expiration Date</label>
+                    <input type="date" id="edit-expiry">
+                </div>
+            </div>
             <div class="modal-field">
                 <label>Notes</label>
                 <input type="text" id="edit-notes" placeholder="Optional notes">
@@ -848,6 +858,18 @@
             <div class="modal-field">
                 <label>Notes Column (optional)</label>
                 <select id="notes-col">
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label>Registration Date (optional)</label>
+                <select id="created-col">
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label>Expiration Date (optional)</label>
+                <select id="expiry-col">
                     <option value="">-- None --</option>
                 </select>
             </div>
@@ -975,6 +997,8 @@
                 const tld = getTLD(d.domain);
                 const isSold = d.status === 'sold';
                 const statusLabel = isSold ? 'Sold' : (d.status === 'negotiation' ? 'In Negotiation' : 'Available');
+                const daysLeftClass = d.daysLeft !== null ? (d.daysLeft <= 30 ? 'var(--accent-red)' : d.daysLeft <= 90 ? 'var(--accent-amber)' : 'var(--accent-green)') : 'var(--text-muted)';
+                const daysLeftText = d.daysLeft !== null ? (d.daysLeft <= 0 ? 'Expired' : `${d.daysLeft} days`) : '';
 
                 return `
                 <div class="domain-card ${isSold ? 'sold' : ''}" data-id="${d.id}">
@@ -983,7 +1007,14 @@
                     <div class="price">${isSold ? 'SOLD' : '$' + parseFloat(d.price || 0).toLocaleString()}</div>
                     <div class="domain-meta">
                         <span class="status-badge ${d.status}">${statusLabel}</span>
+                        ${d.expiryDate ? `<span style="font-size: 0.75rem; color: ${daysLeftClass};">${daysLeftText}</span>` : ''}
                     </div>
+                    ${d.createdDate || d.expiryDate ? `
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">
+                        ${d.createdDate ? `<div>Reg: ${d.createdDate}</div>` : ''}
+                        ${d.expiryDate ? `<div>Exp: ${d.expiryDate}</div>` : ''}
+                    </div>
+                    ` : ''}
                     ${d.notes ? `<div class="notes">${d.notes}</div>` : '<div class="notes"></div>'}
                     <div class="domain-actions">
                         ${!isSold ? `
@@ -1055,6 +1086,8 @@
             document.getElementById('edit-price').value = domain.price || '';
             document.getElementById('edit-status').value = domain.status || 'available';
             document.getElementById('edit-notes').value = domain.notes || '';
+            document.getElementById('edit-created').value = domain.createdDate || '';
+            document.getElementById('edit-expiry').value = domain.expiryDate || '';
 
             document.getElementById('edit-overlay').classList.add('visible');
         }
@@ -1068,9 +1101,19 @@
             const domain = state.domains.find(d => d.id === id);
             if (!domain) return;
 
+            const expiryDate = document.getElementById('edit-expiry').value;
             domain.price = document.getElementById('edit-price').value;
             domain.status = document.getElementById('edit-status').value;
             domain.notes = document.getElementById('edit-notes').value;
+            domain.createdDate = document.getElementById('edit-created').value || null;
+            domain.expiryDate = expiryDate || null;
+
+            if (expiryDate) {
+                const expiry = new Date(expiryDate);
+                domain.daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+            } else {
+                domain.daysLeft = null;
+            }
 
             saveDomains();
             filterDomains();
@@ -1103,10 +1146,16 @@
                 reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
+                        const workbook = XLSX.read(data, { type: 'array', cellDates: true, cellNF: true });
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                        resolve({ headers: jsonData[0] || [], rows: jsonData.slice(1).filter(r => r.some(c => c)) });
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+                        const sheetData = workbook.SheetNames[0];
+                        resolve({
+                            headers: jsonData[0] || [],
+                            rows: jsonData.slice(1).filter(r => r.some(c => c)),
+                            workbook: workbook,
+                            sheetName: sheetData
+                        });
                     } catch (err) {
                         reject(err);
                     }
@@ -1114,6 +1163,24 @@
                 reader.onerror = reject;
                 reader.readAsArrayBuffer(file);
             });
+        }
+
+        function excelSerialToDate(serial) {
+            if (!serial) return null;
+            if (typeof serial === 'string' && serial.match(/^\d{4}-\d{2}-\d{2}/)) {
+                return serial.substring(0, 10);
+            }
+            if (typeof serial === 'object' && serial instanceof Date) {
+                return serial.toISOString().substring(0, 10);
+            }
+            if (typeof serial === 'number') {
+                const excelEpoch = new Date(1900, 0, 1);
+                const date = new Date(excelEpoch.getTime() + (serial - 2) * 86400000);
+                if (!isNaN(date.getTime()) && date.getFullYear() > 1900 && date.getFullYear() < 2100) {
+                    return date.toISOString().substring(0, 10);
+                }
+            }
+            return null;
         }
 
         document.getElementById('import-zone').addEventListener('click', () => {
@@ -1150,6 +1217,8 @@
                 const priceIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('price'));
                 const statusIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('status'));
                 const notesIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('note'));
+                const createdIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('regist') || String(h || '').toLowerCase().includes('created'));
+                const expiryIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('expir') || String(h || '').toLowerCase().includes('due'));
 
                 document.getElementById('domain-col').innerHTML = headers.map((h, i) => `<option value="${i}" ${i === domainIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
                 document.getElementById('price-col').innerHTML = headers.map((h, i) => `<option value="${i}" ${i === priceIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
@@ -1159,6 +1228,12 @@
 
                 const notesSelect = document.getElementById('notes-col');
                 notesSelect.innerHTML = '<option value="">-- None --</option>' + headers.map((h, i) => `<option value="${i}" ${i === notesIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
+
+                const createdSelect = document.getElementById('created-col');
+                createdSelect.innerHTML = '<option value="">-- None --</option>' + headers.map((h, i) => `<option value="${i}" ${i === createdIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
+
+                const expirySelect = document.getElementById('expiry-col');
+                expirySelect.innerHTML = '<option value="">-- None --</option>' + headers.map((h, i) => `<option value="${i}" ${i === expiryIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
 
                 document.getElementById('import-overlay').classList.add('visible');
             } catch (err) {
@@ -1176,6 +1251,8 @@
             const priceCol = parseInt(document.getElementById('price-col').value);
             const statusCol = document.getElementById('status-col').value ? parseInt(document.getElementById('status-col').value) : -1;
             const notesCol = document.getElementById('notes-col').value ? parseInt(document.getElementById('notes-col').value) : -1;
+            const createdCol = document.getElementById('created-col').value ? parseInt(document.getElementById('created-col').value) : -1;
+            const expiryCol = document.getElementById('expiry-col').value ? parseInt(document.getElementById('expiry-col').value) : -1;
 
             const newDomains = [];
             for (const row of state.excelData.rows) {
@@ -1185,17 +1262,28 @@
                 const price = String(row[priceCol] || '0').replace(/[$,]/g, '');
                 const status = statusCol >= 0 ? String(row[statusCol] || 'available').toLowerCase() : 'available';
                 const notes = notesCol >= 0 ? String(row[notesCol] || '') : '';
+                const createdDate = createdCol >= 0 ? excelSerialToDate(row[createdCol]) : null;
+                const expiryDate = expiryCol >= 0 ? excelSerialToDate(row[expiryCol]) : null;
 
                 let normalizedStatus = 'available';
                 if (status.includes('sold') || status.includes('purc')) normalizedStatus = 'sold';
                 else if (status.includes('negot') || status.includes('offer') || status.includes('inqui')) normalizedStatus = 'negotiation';
+
+                let daysLeft = null;
+                if (expiryDate) {
+                    const expiry = new Date(expiryDate);
+                    daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                }
 
                 newDomains.push({
                     id: crypto.randomUUID(),
                     domain,
                     price: parseFloat(price) || 0,
                     status: normalizedStatus,
-                    notes
+                    notes,
+                    createdDate,
+                    expiryDate,
+                    daysLeft
                 });
             }
 
@@ -1221,6 +1309,9 @@
                 'Domain': d.domain,
                 'Price (USD)': d.price,
                 'Status': d.status === 'sold' ? 'Sold' : (d.status === 'negotiation' ? 'In Negotiation' : 'Available'),
+                'Registration Date': d.createdDate || '',
+                'Expiration Date': d.expiryDate || '',
+                'Days Left': d.daysLeft !== null ? d.daysLeft : '',
                 'Notes': d.notes || ''
             }));
 
