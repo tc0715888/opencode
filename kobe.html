@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kobe Bryant Memorial | Mamba Forever</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #fuda01;
+            --text: #ffffff;
+            --text-secondary: #a0a0a0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(26, 26, 46, 0.95), transparent);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920') center/cover;
+            opacity: 0.3;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(to top, var(--primary), transparent);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-number {
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            text-shadow: 0 0 60px rgba(249, 160, 1, 0.3);
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin: 20px 0;
+            letter-spacing: 8px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .hero-quote {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-style: italic;
+            max-width: 600px;
+            color: var(--text-secondary);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        .legacy {
+            padding: 100px 50px;
+            background: var(--secondary);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            color: var(--accent);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: var(--primary);
+            padding: 40px 30px;
+            text-align: center;
+            border-radius: 10px;
+            border: 1px solid rgba(249, 160, 1, 0.2);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .quotes {
+            padding: 100px 50px;
+            background: var(--primary);
+        }
+
+        .quotes-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quote-card {
+            background: var(--secondary);
+            padding: 50px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s, transform 0.6s;
+        }
+
+        .quote-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        .quote-author {
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .achievements {
+            padding: 100px 50px;
+            background: var(--secondary);
+        }
+
+        .rings-container {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .ring {
+            width: 80px;
+            height: 80px;
+            border: 4px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            position: relative;
+        }
+
+        .ring::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(249, 160, 1, 0.3);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0; }
+        }
+
+        .gallery {
+            padding: 100px 50px;
+            background: var(--primary);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gallery-item {
+            aspect-ratio: 16/10;
+            background: var(--secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        .candle-section {
+            padding: 100px 50px;
+            text-align: center;
+            background: var(--secondary);
+        }
+
+        .candle {
+            width: 60px;
+            height: 100px;
+            background: linear-gradient(to bottom, #f5f5dc, #daa520);
+            margin: 0 auto 30px;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+
+        .flame {
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to top, #ff6600, #ffcc00, #fff);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: flicker 0.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { transform: translateX(-50%) scale(1) rotate(-2deg); }
+            100% { transform: translateX(-50%) scale(1.1) rotate(2deg); }
+        }
+
+        .candle-glow {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255, 200, 100, 0.3), transparent);
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: glow 1s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        footer {
+            padding: 50px;
+            text-align: center;
+            background: var(--primary);
+            border-top: 1px solid rgba(249, 160, 1, 0.2);
+        }
+
+        footer p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        footer .rip {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-number { font-size: 5rem; }
+            .hero h1 { font-size: 2.5rem; letter-spacing: 4px; }
+            .hero-quote { font-size: 1.2rem; }
+            .section-title { font-size: 2rem; }
+            nav { padding: 15px 20px; }
+            .nav-links { display: none; }
+            .rings-container { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">MAMBA</div>
+        <ul class="nav-links">
+            <li><a href="#legacy">Legacy</a></li>
+            <li><a href="#quotes">Quotes</a></li>
+            <li><a href="#achievements">Championships</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-number">8</div>
+            <h1>KOBE BRYANT</h1>
+            <p class="hero-subtitle">1978 — 2020</p>
+            <p class="hero-quote">"I don't want to be the next Michael Jordan, I just want to be Kobe Bryant."</p>
+        </div>
+        <div class="scroll-indicator">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fuda01" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <section class="legacy" id="legacy">
+        <h2 class="section-title">LEGACY</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" data-target="33643">0</div>
+                <div class="stat-label">Career Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="5">0</div>
+                <div class="stat-label">Championships</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="18">0</div>
+                <div class="stat-label">All-Star Selections</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="2">0</div>
+                <div class="stat-label">Olympic Gold Medals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="1">0</div>
+                <div class="stat-label">Oscar Winner</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" data-target="20">0</div>
+                <div class="stat-label">Seasons in NBA</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="quotes" id="quotes">
+        <h2 class="section-title">MAMBA MENTALITY</h2>
+        <div class="quotes-container">
+            <div class="quote-card">
+                <p class="quote-text">"Everything negative - pressure, challenges - is all an opportunity for me to rise."</p>
+                <p class="quote-author">— Kobe Bryant</p>
+            </div>
+            <div class="quote-card">
+                <p class="quote-text">"I can't relate to being lazy. Ambition doesn't sleep. That's what I can relate to."</p>
+                <p class="quote-author">— Kobe Bryant</p>
+            </div>
+            <div class="quote-card">
+                <p class="quote-text">"The moment you give up, that's the moment you give up on your dream."</p>
+                <p class="quote-author">— Kobe Bryant</p>
+            </div>
+            <div class="quote-card">
+                <p class="quote-text">"Have a good time. Life is short, cherish every moment. Hard work beats talent when talent doesn't work hard."</p>
+                <p class="quote-author">— Kobe Bryant</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="achievements" id="achievements">
+        <h2 class="section-title">CHAMPIONSHIP RINGS</h2>
+        <div class="rings-container">
+            <div class="ring">00</div>
+            <div class="ring">01</div>
+            <div class="ring">02</div>
+            <div class="ring">09</div>
+            <div class="ring">10</div>
+        </div>
+    </section>
+
+    <section class="gallery" id="gallery">
+        <h2 class="section-title">MEMORIAL</h2>
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600" alt="Basketball court">
+                <div class="gallery-overlay">The Court</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1504450758481-7338bbe75c8e?w=600" alt="Basketball">
+                <div class="gallery-overlay">The Game</div>
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1574623452334-1e0ac2b3ccb4?w=600" alt="Stadium">
+                <div class="gallery-overlay">The Arena</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="candle-section">
+        <div class="candle">
+            <div class="candle-glow"></div>
+            <div class="flame"></div>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 1.2rem;">In Loving Memory</p>
+    </section>
+
+    <footer>
+        <p class="rip">REST IN PEACE</p>
+        <p>Kobe Bryant, Gianna Bryant, and all those who perished on January 26, 2020</p>
+        <p style="margin-top: 20px;">Mamba Forever. 1978-2020</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quoteCards = document.querySelectorAll('.quote-card');
+            const statNumbers = document.querySelectorAll('.stat-number');
+
+            const observerOptions = {
+                threshold: 0.2,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const quoteObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            quoteCards.forEach(card => quoteObserver.observe(card));
+
+            const animateCounter = (element) => {
+                const target = parseInt(element.dataset.target);
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        element.textContent = Math.floor(current).toLocaleString();
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        element.textContent = target.toLocaleString();
+                    }
+                };
+
+                updateCounter();
+            };
+
+            const statObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        statObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            statNumbers.forEach(stat => statObserver.observe(stat));
+        });
+    </script>
+</body>
+</html>

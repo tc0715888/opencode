@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMAIN MATRIX - Domain Management Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-elevated: #232b3e;
+            --accent-cyan: #00f0ff;
+            --accent-purple: #7c3aed;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-green: #10b981;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e3a5f;
+            --border-glow: rgba(0, 240, 255, 0.3);
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.4);
+            --glow-purple: 0 0 20px rgba(124, 58, 237, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                linear-gradient(90deg, transparent 49.5%, rgba(0, 240, 255, 0.03) 50%, transparent 50.5%),
+                linear-gradient(0deg, transparent 49.5%, rgba(0, 240, 255, 0.03) 50%, transparent 50.5%);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, transparent 100%);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+            letter-spacing: 4px;
+            position: relative;
+        }
+
+        .logo::before {
+            content: 'DOMAIN MATRIX';
+            position: absolute;
+            left: 2px;
+            top: 0;
+            color: var(--accent-purple);
+            opacity: 0.5;
+            clip-path: inset(0 0 50% 0);
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 1px); }
+            94% { transform: translate(2px, -1px); }
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Content */
+        main {
+            padding: 32px 0;
+        }
+
+        /* Control Bar */
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+        }
+
+        .search-box::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, #0891b2 100%);
+            color: var(--bg-primary);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+        }
+
+        .btn-ghost:hover {
+            color: var(--accent-cyan);
+        }
+
+        /* Import Zone */
+        .import-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            background: var(--bg-secondary);
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-bottom: 32px;
+        }
+
+        .import-zone:hover,
+        .import-zone.dragover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .import-zone.dragover {
+            box-shadow: inset 0 0 30px rgba(0, 240, 255, 0.1);
+        }
+
+        .import-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300f0ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .import-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+
+        .import-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .import-formats {
+            margin-top: 16px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: var(--bg-card);
+            padding: 16px 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-icon.total { background: rgba(0, 240, 255, 0.2); }
+        .stat-icon.expiring { background: rgba(245, 158, 11, 0.2); }
+        .stat-icon.expired { background: rgba(239, 68, 68, 0.2); }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Data Table */
+        .data-table-wrapper {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            padding: 16px 20px;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .data-table th:hover {
+            color: var(--accent-cyan);
+        }
+
+        .data-table th.sorted {
+            color: var(--accent-cyan);
+        }
+
+        .data-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(30, 58, 95, 0.5);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .data-table tbody tr::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--accent-cyan);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .data-table tbody tr:hover::after {
+            opacity: 1;
+        }
+
+        .domain-name {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .status-badge.expiring {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .status-badge.expired {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .days-indicator {
+            font-weight: 600;
+        }
+
+        .days-indicator.critical { color: var(--accent-red); }
+        .days-indicator.warning { color: var(--accent-amber); }
+        .days-indicator.safe { color: var(--accent-green); }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* Loading State */
+        .loading-row td {
+            opacity: 0.5;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-card) 50%, var(--bg-elevated) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            height: 16px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .empty-state-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .detail-panel.open {
+            right: 0;
+        }
+
+        .detail-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            position: sticky;
+            top: 0;
+        }
+
+        .detail-domain {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+        }
+
+        .close-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border);
+            background: transparent;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .detail-content {
+            padding: 24px;
+        }
+
+        .detail-section {
+            margin-bottom: 32px;
+        }
+
+        .detail-section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(30, 58, 95, 0.3);
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Column Mapping Modal */
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            z-index: 1001;
+            min-width: 400px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            margin-bottom: 24px;
+        }
+
+        .modal-field {
+            margin-bottom: 20px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .modal-field select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .control-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                max-width: none;
+            }
+            .stats-bar {
+                flex-direction: column;
+            }
+            .detail-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">DOMAIN MATRIX</div>
+                <div class="status-bar">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span>SYSTEM ONLINE</span>
+                    </div>
+                    <span id="last-sync">LAST SYNC: --:--:--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="control-bar">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search domains...">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn btn-secondary" id="refresh-all-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Refresh All
+                </button>
+                <button class="btn btn-primary" id="import-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    Import Excel
+                </button>
+            </div>
+        </div>
+
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+
+        <div class="import-zone" id="import-zone">
+            <div class="import-icon"></div>
+            <div class="import-title">DROP EXCEL FILE HERE</div>
+            <div class="import-subtitle">or click to browse</div>
+            <div class="import-formats">Supported formats: .xlsx, .xls, .csv</div>
+        </div>
+
+        <div id="stats-section" class="hidden">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-icon total">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="2">
+                            <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="total-domains">0</div>
+                        <div class="stat-label">Total Domains</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon expiring">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                            <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="expiring-domains">0</div>
+                        <div class="stat-label">Expiring Soon</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon expired">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                            <path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="expired-domains">0</div>
+                        <div class="stat-label">Expired</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon" style="background: rgba(239, 68, 68, 0.2);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                            <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="failed-domains">0</div>
+                        <div class="stat-label">Query Failed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Status</th>
+                            <th data-sort="domain">Domain</th>
+                            <th data-sort="registrar">Registrar</th>
+                            <th data-sort="created">Reg. Date</th>
+                            <th data-sort="expiry">Expiry Date</th>
+                            <th data-sort="days">Days Left</th>
+                            <th data-sort="price">Renewal</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="domains-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="empty-state" class="empty-state">
+            <div class="empty-state-icon"></div>
+            <div class="empty-state-title">NO DOMAINS LOADED</div>
+            <div class="empty-state-text">Import an Excel file to begin tracking domain expirations</div>
+        </div>
+    </main>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="modal" id="column-modal">
+        <div class="modal-title">Map Excel Columns</div>
+        <div class="modal-field">
+            <label>Domain Column</label>
+            <select id="domain-column-select"></select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" id="cancel-mapping">Cancel</button>
+            <button class="btn btn-primary" id="confirm-mapping">Import Domains</button>
+        </div>
+    </div>
+
+    <div class="modal" id="manual-entry-modal" style="min-width: 450px;">
+        <div class="modal-title">手动录入域名信息</div>
+        <div class="modal-field">
+            <label>域名</label>
+            <input type="text" id="manual-domain" style="width: 100%; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;" readonly>
+        </div>
+        <div class="modal-field">
+            <label>注册商</label>
+            <input type="text" id="manual-registrar" placeholder="例如: GoDaddy.com, LLC" style="width: 100%; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">
+        </div>
+        <div class="modal-field">
+            <label>注册日期</label>
+            <input type="date" id="manual-created" style="width: 100%; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">
+        </div>
+        <div class="modal-field">
+            <label>到期日期</label>
+            <input type="date" id="manual-expiry" style="width: 100%; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">
+        </div>
+        <div class="modal-field">
+            <label>续费价格 (USD)</label>
+            <input type="text" id="manual-price" placeholder="例如: 12.99" style="width: 100%; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace;">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-ghost" id="cancel-manual">取消</button>
+            <button class="btn btn-primary" id="save-manual">保存</button>
+        </div>
+    </div>
+
+    <div class="detail-panel" id="detail-panel">
+        <div class="detail-header">
+            <div class="detail-domain" id="detail-domain-name">example.com</div>
+            <button class="close-btn" id="close-panel">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <div class="detail-content">
+            <div class="detail-section">
+                <div class="detail-section-title">Registration Info</div>
+                <div class="detail-row">
+                    <span class="detail-label">Registrar</span>
+                    <span class="detail-value" id="detail-registrar">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Registration Date</span>
+                    <span class="detail-value" id="detail-created">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Expiration Date</span>
+                    <span class="detail-value" id="detail-expiry">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Days Until Expiry</span>
+                    <span class="detail-value" id="detail-days">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Renewal Price</span>
+                    <span class="detail-value" id="detail-price">-</span>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">WHOIS Data</div>
+                <div class="detail-row">
+                    <span class="detail-label">WHOIS Server</span>
+                    <span class="detail-value" id="detail-whois-server">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Name Servers</span>
+                    <span class="detail-value" id="detail-nameservers">-</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value" id="detail-status">-</span>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">Actions</div>
+                <button class="btn btn-secondary" style="width: 100%; margin-bottom: 12px;" id="detail-whois-btn">
+                    Look Up WHOIS
+                </button>
+                <button class="btn btn-ghost" style="width: 100%; margin-bottom: 12px; color: var(--accent-amber);" id="detail-manual-btn" onclick="openManualEntry()">
+                    手动录入信息
+                </button>
+                <button class="btn btn-ghost" style="width: 100%;" id="detail-remove-btn">
+                    Remove from List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <span>DOMAIN MATRIX v1.0.0</span>
+                <span>Data cached locally for privacy</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const state = {
+            domains: [],
+            filteredDomains: [],
+            sortField: 'expiry',
+            sortDirection: 'asc',
+            currentDetail: null,
+            excelData: null,
+            columnMapping: {}
+        };
+
+        const CACHE_KEY = 'domain_matrix_cache_v2';
+        const WHOIS_API_KEY = 'at_DEMO_KEY';
+
+        function loadCache() {
+            try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    if (data.domains && data.domains.length > 0) {
+                        state.domains = data.domains;
+                        state.filteredDomains = data.domains;
+                        renderDomains();
+                        updateStats();
+                        document.getElementById('stats-section').classList.remove('hidden');
+                        document.getElementById('empty-state').classList.add('hidden');
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load cache:', e);
+            }
+        }
+
+        function saveCache() {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    domains: state.domains,
+                    lastUpdated: new Date().toISOString()
+                }));
+            } catch (e) {
+                console.warn('Failed to save cache:', e);
+            }
+        }
+
+        function clearCache() {
+            try {
+                localStorage.removeItem(CACHE_KEY);
+            } catch (e) {
+                console.warn('Failed to clear cache:', e);
+            }
+        }
+
+        function updateLastSync() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('last-sync').textContent = `LAST SYNC: ${time}`;
+        }
+
+        function parseExcel(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                        if (jsonData.length === 0) {
+                            reject(new Error('Empty Excel file'));
+                            return;
+                        }
+
+                        resolve({
+                            headers: jsonData[0],
+                            rows: jsonData.slice(1).filter(row => row.some(cell => cell))
+                        });
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function findDomainColumn(headers) {
+            const domainKeywords = ['domain', 'domain name', 'url', 'site', 'website', 'hostname'];
+            for (let i = 0; i < headers.length; i++) {
+                const header = String(headers[i]).toLowerCase().trim();
+                if (domainKeywords.some(kw => header.includes(kw))) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        function extractDomains(excelData, domainColIndex) {
+            const domains = [];
+            const seen = new Set();
+
+            for (const row of excelData.rows) {
+                let domain = row[domainColIndex];
+                if (!domain) continue;
+
+                domain = String(domain).toLowerCase().trim();
+
+                if (seen.has(domain)) continue;
+                seen.add(domain);
+
+                if (!domain.match(/^[a-z0-9]+([-a-z0-9]*[a-z0-9])*(\.[a-z]{2,})+$/i)) {
+                    continue;
+                }
+
+                domains.push({
+                    id: crypto.randomUUID(),
+                    domain: domain,
+                    registrar: null,
+                    createdDate: null,
+                    expiryDate: null,
+                    daysLeft: null,
+                    renewalPrice: null,
+                    whoisServer: null,
+                    nameServers: null,
+                    status: null,
+                    loading: true,
+                    lookupFailed: false
+                });
+            }
+
+            return domains;
+        }
+
+        const RDAP_SERVERS = {
+            'com': 'https://rdap.verisign.com/com/v1',
+            'net': 'https://rdap.verisign.com/net/v1',
+            'org': 'https://rdap.publicdomainregistry.org/v1',
+            'info': 'https://rdap.registrars.info/v1',
+            'biz': 'https://rdap.biz.v1',
+            'io': 'https://rdap.nic.io/v1',
+            'co': 'https://rdap.co.nic.co/v1',
+            'me': 'https://rdap.nic.me/v1',
+            'tv': 'https://rdap.nic.tv/v1',
+            'cc': 'https://rdap.nic.cc/v1',
+            'xyz': 'https://rdap.nic.xyz/v1',
+            'online': 'https://rdap.nic.online/v1',
+            'site': 'https://rdap.nic.site/v1',
+            'app': 'https://rdap.app.v1',
+            'dev': 'https://rdap.app.v1',
+            'cloud': 'https://rdap.nic.cloud/v1',
+            'ai': 'https://rdap.nic.ai/v1',
+            'club': 'https://rdap.nic.club/v1',
+            'us': 'https://rdap.publicdomainregistry.org/v1',
+            'uk': 'https://rdap.nic.uk/v1',
+            'de': 'https://rdap.denic.de/v1',
+            'fr': 'https://rdap.nic.fr/v1',
+            'jp': 'https://rdap.nic.ad.jp/v1',
+            'cn': 'https://rdap.cnnic.cn/v1',
+            'ru': 'https://rdap.tcinet.ru/v1',
+            'br': 'https://rdap.registro.br/v1',
+            'au': 'https://rdap.auda.org.au/v1',
+            'ca': 'https://rdap.cira.ca/v1',
+            'in': 'https://rdap.inregistry.in/v1',
+            'es': 'https://rdap.nic.es/v1',
+            'nl': 'https://rdap.sidn.nl/v1',
+            'ch': 'https://rdap.nic.ch/v1',
+            'at': 'https://rdap.nic.at/v1',
+            'be': 'https://rdap.dns.be/v1',
+            'se': 'https://rdap.iis.se/v1',
+            'no': 'https://rdap.norid.no/v1',
+            'dk': 'https://rdap.dk-hostmaster.dk/v1',
+            'fi': 'https://rdap.net芬兰.fi/v1',
+            'pl': 'https://rdap.nic.pl/v1',
+            'cz': 'https://rdap.nic.cz/v1',
+            'hu': 'https://rdap.nic.hu/v1',
+            'sk': 'https://rdap.sk-nic.sk/v1',
+            'ro': 'https://rdap.rotld.ro/v1',
+            'gr': 'https://rdap.grnet.gr/v1',
+            'pt': 'https://rdap.dns.pt/v1',
+        };
+
+        function getTLD(domain) {
+            const parts = domain.split('.');
+            return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : null;
+        }
+
+        function getRdapServer(tld) {
+            if (RDAP_SERVERS[tld]) {
+                return RDAP_SERVERS[tld];
+            }
+            return `https://rdap.publicdomainregistry.org/v1`;
+        }
+
+        function parseRDAPDate(events) {
+            if (!events || !Array.isArray(events)) return null;
+
+            for (const event of events) {
+                if (event.eventAction === 'registration' || event.eventAction === 'initial registration') {
+                    if (event.eventDate) {
+                        const date = new Date(event.eventDate);
+                        if (!isNaN(date.getTime())) {
+                            return date.toISOString().split('T')[0];
+                        }
+                    }
+                }
+            }
+            for (const event of events) {
+                if (event.eventDate) {
+                    const date = new Date(event.eventDate);
+                    if (!isNaN(date.getTime())) {
+                        return date.toISOString().split('T')[0];
+                    }
+                }
+            }
+            return null;
+        }
+
+        function parseRDAPExpiry(events) {
+            if (!events || !Array.isArray(events)) return null;
+
+            for (const event of events) {
+                if (event.eventAction === 'expiration' || event.eventAction === 'expired') {
+                    if (event.eventDate) {
+                        const date = new Date(event.eventDate);
+                        if (!isNaN(date.getTime())) {
+                            return date.toISOString().split('T')[0];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        function parseRegistrar(entities) {
+            if (!entities || !Array.isArray(entities)) return null;
+
+            for (const entity of entities) {
+                if (entity.roles && entity.roles.includes('registrar')) {
+                    if (entity.vcardArray && Array.isArray(entity.vcardArray)) {
+                        for (const item of entity.vcardArray) {
+                            if (Array.isArray(item) && item[0] === 'fn') {
+                                return item[3];
+                            }
+                        }
+                    }
+                    if (entity.handle) {
+                        return entity.handle;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function parseNameServers(nameservers) {
+            if (!nameservers) return null;
+            if (Array.isArray(nameservers)) {
+                return nameservers.map(ns => ns.ldhName || ns).filter(Boolean);
+            }
+            return null;
+        }
+
+        function parseStatus(statuses) {
+            if (!statuses || !Array.isArray(statuses)) return null;
+            return statuses.join(', ');
+        }
+
+        async function lookupWhoisRDAP(domain) {
+            const tld = getTLD(domain);
+            const server = getRdapServer(tld);
+
+            try {
+                const response = await fetch(`${server}/domain/${encodeURIComponent(domain)}`, {
+                    headers: { 'Accept': 'application/rdap+json' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`RDAP returned ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                const createdDate = parseRDAPDate(data.events);
+                const expiryDate = parseRDAPExpiry(data.events);
+                const registrar = parseRegistrar(data.entities);
+                const nameServers = parseNameServers(data.nameservers);
+                const status = parseStatus(data.status);
+
+                let daysLeft = null;
+                if (expiryDate) {
+                    const expiry = new Date(expiryDate);
+                    daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                }
+
+                return {
+                    registrar: registrar || 'Unknown',
+                    createdDate: createdDate,
+                    expiryDate: expiryDate,
+                    daysLeft: daysLeft,
+                    renewalPrice: null,
+                    whoisServer: server,
+                    nameServers: nameServers,
+                    status: status,
+                    source: 'RDAP'
+                };
+            } catch (e) {
+                console.warn(`RDAP lookup failed for ${domain}:`, e.message);
+                return null;
+            }
+        }
+
+        async function lookupWhoisWhoisXML(domain) {
+            try {
+                const response = await fetch(
+                    `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${WHOIS_API_KEY}&domainName=${domain}&outputFormat=json&ua=MATOOLS`
+                );
+                if (!response.ok) throw new Error('WhoisXML API failed');
+
+                const data = await response.json();
+                const record = data.WhoisRecord;
+
+                if (!record) throw new Error('No WhoisRecord in response');
+
+                let createdDate = null;
+                let expiryDate = null;
+
+                if (record.createdDate) {
+                    const d = new Date(record.createdDate);
+                    if (!isNaN(d.getTime())) createdDate = d.toISOString().split('T')[0];
+                }
+
+                if (record.expiresDate) {
+                    const d = new Date(record.expiresDate);
+                    if (!isNaN(d.getTime())) expiryDate = d.toISOString().split('T')[0];
+                }
+
+                if (!createdDate && record.estimatedCreatedDate) {
+                    const d = new Date(record.estimatedCreatedDate);
+                    if (!isNaN(d.getTime())) createdDate = d.toISOString().split('T')[0];
+                }
+
+                let daysLeft = null;
+                if (expiryDate) {
+                    const expiry = new Date(expiryDate);
+                    daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                }
+
+                let nameServers = null;
+                if (record.nameServers && record.nameServers.hostNames) {
+                    nameServers = record.nameServers.hostNames;
+                }
+
+                return {
+                    registrar: record.registrarName || 'Unknown',
+                    createdDate: createdDate,
+                    expiryDate: expiryDate,
+                    daysLeft: daysLeft,
+                    renewalPrice: null,
+                    whoisServer: record.whoisServer || null,
+                    nameServers: nameServers,
+                    status: record.status || null,
+                    source: 'WhoisXML'
+                };
+            } catch (e) {
+                console.warn(`WhoisXML lookup failed for ${domain}:`, e.message);
+                return null;
+            }
+        }
+
+        async function lookupWhois(domain) {
+            let result = await lookupWhoisRDAP(domain);
+
+            if (!result || !result.expiryDate) {
+                const fallback = await lookupWhoisWhoisXML(domain);
+                if (fallback && fallback.expiryDate) {
+                    result = fallback;
+                } else if (fallback) {
+                    result = fallback;
+                }
+            }
+
+            if (!result) {
+                return {
+                    registrar: null,
+                    createdDate: null,
+                    expiryDate: null,
+                    daysLeft: null,
+                    renewalPrice: null,
+                    whoisServer: null,
+                    nameServers: null,
+                    status: null,
+                    lookupFailed: true,
+                    source: 'none'
+                };
+            }
+
+            return { ...result, lookupFailed: false };
+        }
+
+        async function lookupAllWhois(domains) {
+            const results = [];
+            for (const domain of domains) {
+                const data = await lookupWhois(domain.domain);
+                results.push({ ...domain, ...data, loading: false });
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            return results;
+        }
+
+        function getDaysLeftClass(days) {
+            if (days === null) return '';
+            if (days <= 0) return 'critical';
+            if (days <= 30) return 'critical';
+            if (days <= 90) return 'warning';
+            return 'safe';
+        }
+
+        function getStatusBadge(days) {
+            if (days === null) return '<span class="status-badge" style="background: rgba(100,116,139,0.2); color: #64748b;">Unknown</span>';
+            if (days <= 0) return '<span class="status-badge expired">Expired</span>';
+            if (days <= 30) return '<span class="status-badge expired">Critical</span>';
+            if (days <= 90) return '<span class="status-badge expiring">Expiring</span>';
+            return '<span class="status-badge active">Active</span>';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            return dateStr;
+        }
+
+        function renderDomains() {
+            const tbody = document.getElementById('domains-tbody');
+
+            if (state.filteredDomains.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 60px;">
+                            <div class="empty-state-title">NO MATCHING DOMAINS</div>
+                            <div class="empty-state-text">Try adjusting your search criteria</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = state.filteredDomains.map(domain => {
+                let statusColor = '#64748b';
+                let statusGlow = '#64748b';
+
+                if (domain.loading) {
+                    statusColor = '#64748b';
+                    statusGlow = '#64748b';
+                } else if (domain.lookupFailed) {
+                    statusColor = '#ef4444';
+                    statusGlow = '#ef4444';
+                } else if (domain.daysLeft !== null) {
+                    if (domain.daysLeft <= 30) {
+                        statusColor = '#ef4444';
+                        statusGlow = '#ef4444';
+                    } else if (domain.daysLeft <= 90) {
+                        statusColor = '#f59e0b';
+                        statusGlow = '#f59e0b';
+                    } else {
+                        statusColor = '#10b981';
+                        statusGlow = '#10b981';
+                    }
+                }
+
+                return `
+                <tr data-id="${domain.id}" class="${domain.loading ? 'loading-row' : ''}">
+                    <td>
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: ${statusColor}; box-shadow: 0 0 10px ${statusGlow};"></div>
+                    </td>
+                    <td><span class="domain-name">${domain.domain}</span> ${domain.lookupFailed ? '<span style="color: #ef4444; font-size: 0.7rem;"> [查询失败]</span>' : ''}</td>
+                    <td>${domain.loading ? '<div class="skeleton" style="width: 100px;"></div>' : (domain.registrar || '-')}</td>
+                    <td>${domain.loading ? '<div class="skeleton" style="width: 80px;"></div>' : formatDate(domain.createdDate)}</td>
+                    <td>${domain.loading ? '<div class="skeleton" style="width: 80px;"></div>' : formatDate(domain.expiryDate)}</td>
+                    <td>
+                        ${domain.loading ? '<div class="skeleton" style="width: 40px;"></div>' :
+                            domain.lookupFailed ? '<span style="color: #ef4444;">失败</span>' :
+                            `<span class="days-indicator ${getDaysLeftClass(domain.daysLeft)}">${domain.daysLeft !== null ? domain.daysLeft : '-'}</span>`
+                        }
+                    </td>
+                    <td>${domain.loading ? '<div class="skeleton" style="width: 60px;"></div>' : (domain.renewalPrice || '-')}</td>
+                    <td>
+                        <button class="action-btn" onclick="viewDetail('${domain.id}')">${domain.lookupFailed ? '录入' : '查看'}</button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function updateStats() {
+            const total = state.domains.length;
+            const expired = state.domains.filter(d => d.daysLeft !== null && d.daysLeft <= 0).length;
+            const expiring = state.domains.filter(d => d.daysLeft !== null && d.daysLeft > 0 && d.daysLeft <= 30).length;
+            const failed = state.domains.filter(d => d.lookupFailed).length;
+
+            document.getElementById('total-domains').textContent = total;
+            document.getElementById('expiring-domains').textContent = expiring;
+            document.getElementById('expired-domains').textContent = expired;
+            document.getElementById('failed-domains').textContent = failed;
+        }
+
+        function filterDomains(searchTerm) {
+            if (!searchTerm) {
+                state.filteredDomains = [...state.domains];
+            } else {
+                const term = searchTerm.toLowerCase();
+                state.filteredDomains = state.domains.filter(d =>
+                    d.domain.includes(term) ||
+                    (d.registrar && d.registrar.toLowerCase().includes(term))
+                );
+            }
+            sortDomains();
+            renderDomains();
+        }
+
+        function sortDomains() {
+            state.filteredDomains.sort((a, b) => {
+                let aVal, bVal;
+
+                switch (state.sortField) {
+                    case 'domain':
+                        aVal = a.domain;
+                        bVal = b.domain;
+                        break;
+                    case 'registrar':
+                        aVal = a.registrar || '';
+                        bVal = b.registrar || '';
+                        break;
+                    case 'created':
+                        aVal = a.createdDate || '';
+                        bVal = b.createdDate || '';
+                        break;
+                    case 'expiry':
+                        aVal = a.expiryDate || '';
+                        bVal = b.expiryDate || '';
+                        break;
+                    case 'days':
+                        aVal = a.daysLeft ?? 99999;
+                        bVal = b.daysLeft ?? 99999;
+                        break;
+                    case 'price':
+                        aVal = parseFloat(a.renewalPrice) || 0;
+                        bVal = parseFloat(b.renewalPrice) || 0;
+                        break;
+                    default:
+                        aVal = a.expiryDate || '';
+                        bVal = b.expiryDate || '';
+                }
+
+                if (typeof aVal === 'string') {
+                    return state.sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+
+                return state.sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+        }
+
+        function viewDetail(id) {
+            const domain = state.domains.find(d => d.id === id);
+            if (!domain) return;
+
+            state.currentDetail = domain;
+
+            document.getElementById('detail-domain-name').textContent = domain.domain;
+            document.getElementById('detail-registrar').textContent = domain.registrar || '-';
+            document.getElementById('detail-created').textContent = formatDate(domain.createdDate);
+            document.getElementById('detail-expiry').textContent = formatDate(domain.expiryDate);
+            document.getElementById('detail-days').textContent = domain.daysLeft !== null ? `${domain.daysLeft} days` : (domain.lookupFailed ? '查询失败' : '-');
+            document.getElementById('detail-price').textContent = domain.renewalPrice || '-';
+            document.getElementById('detail-whois-server').textContent = domain.whoisServer || '-';
+            document.getElementById('detail-nameservers').textContent = domain.nameServers ? domain.nameServers.join(', ') : '-';
+            document.getElementById('detail-status').textContent = domain.lookupFailed ? '查询失败' : (domain.status || '-');
+
+            document.getElementById('detail-days').className = `detail-value days-indicator ${getDaysLeftClass(domain.daysLeft)}`;
+
+            const detailWhoisBtn = document.getElementById('detail-whois-btn');
+            if (domain.lookupFailed) {
+                detailWhoisBtn.textContent = '重新查询';
+                detailWhoisBtn.onclick = () => retryLookup(domain);
+            } else {
+                detailWhoisBtn.textContent = '刷新 WHOIS';
+                detailWhoisBtn.onclick = () => refreshDomain(domain);
+            }
+
+            document.getElementById('overlay').classList.add('visible');
+            document.getElementById('detail-panel').classList.add('open');
+        }
+
+        async function retryLookup(domain) {
+            domain.loading = true;
+            renderDomains();
+
+            const data = await lookupWhois(domain.domain);
+            Object.assign(domain, data, { loading: false });
+            saveCache();
+            renderDomains();
+            updateStats();
+            if (state.currentDetail && state.currentDetail.id === domain.id) {
+                viewDetail(domain.id);
+            }
+        }
+
+        function closeDetail() {
+            document.getElementById('overlay').classList.remove('visible');
+            document.getElementById('detail-panel').classList.remove('open');
+            state.currentDetail = null;
+        }
+
+        async function refreshDomain(domain) {
+            const data = await lookupWhois(domain.domain);
+            Object.assign(domain, data, { loading: false });
+            saveCache();
+            renderDomains();
+            updateStats();
+            if (state.currentDetail && state.currentDetail.id === domain.id) {
+                viewDetail(domain.id);
+            }
+        }
+
+        async function refreshAll() {
+            const pendingDomains = state.domains.filter(d => d.loading);
+            if (pendingDomains.length === 0) {
+                for (const domain of state.domains) {
+                    const data = await lookupWhois(domain.domain);
+                    Object.assign(domain, data, { loading: false });
+                }
+            }
+            saveCache();
+            renderDomains();
+            updateStats();
+            updateLastSync();
+        }
+
+        document.getElementById('import-zone').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        document.getElementById('import-zone').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        });
+
+        document.getElementById('import-zone').addEventListener('dragleave', (e) => {
+            e.currentTarget.classList.remove('dragover');
+        });
+
+        document.getElementById('import-zone').addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                await handleFile(file);
+            }
+        });
+
+        document.getElementById('file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await handleFile(file);
+            }
+        });
+
+        async function handleFile(file) {
+            try {
+                const excelData = await parseExcel(file);
+                state.excelData = excelData;
+
+                const domainColIndex = findDomainColumn(excelData.headers);
+                const select = document.getElementById('domain-column-select');
+
+                select.innerHTML = excelData.headers.map((header, i) =>
+                    `<option value="${i}" ${i === domainColIndex ? 'selected' : ''}>${header || `Column ${i + 1}`}</option>`
+                ).join('');
+
+                document.getElementById('overlay').classList.add('visible');
+                document.getElementById('column-modal').classList.add('open');
+            } catch (err) {
+                alert('Failed to parse Excel file: ' + err.message);
+            }
+        }
+
+        document.getElementById('confirm-mapping').addEventListener('click', async () => {
+            const domainColIndex = parseInt(document.getElementById('domain-column-select').value);
+            const domains = extractDomains(state.excelData, domainColIndex);
+
+            document.getElementById('column-modal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('visible');
+
+            if (domains.length === 0) {
+                alert('No valid domains found in the selected column.');
+                return;
+            }
+
+            state.domains = domains;
+            state.filteredDomains = [...domains];
+            sortDomains();
+            renderDomains();
+            updateStats();
+
+            document.getElementById('stats-section').classList.remove('hidden');
+            document.getElementById('empty-state').classList.add('hidden');
+
+            const results = await lookupAllWhois(domains);
+            state.domains = results;
+            state.filteredDomains = [...results];
+            sortDomains();
+            renderDomains();
+            updateStats();
+            saveCache();
+            updateLastSync();
+        });
+
+        document.getElementById('cancel-mapping').addEventListener('click', () => {
+            document.getElementById('column-modal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('visible');
+        });
+
+        document.getElementById('overlay').addEventListener('click', closeDetail);
+        document.getElementById('close-panel').addEventListener('click', closeDetail);
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            filterDomains(e.target.value);
+        });
+
+        document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const field = th.dataset.sort;
+                if (state.sortField === field) {
+                    state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    state.sortField = field;
+                    state.sortDirection = 'asc';
+                }
+
+                document.querySelectorAll('.data-table th').forEach(el => el.classList.remove('sorted'));
+                th.classList.add('sorted');
+
+                sortDomains();
+                renderDomains();
+            });
+        });
+
+        document.getElementById('refresh-all-btn').addEventListener('click', refreshAll);
+
+        document.getElementById('detail-whois-btn').addEventListener('click', () => {
+            if (state.currentDetail) {
+                refreshDomain(state.currentDetail);
+            }
+        });
+
+        document.getElementById('detail-remove-btn').addEventListener('click', () => {
+            if (state.currentDetail) {
+                const id = state.currentDetail.id;
+                state.domains = state.domains.filter(d => d.id !== id);
+                state.filteredDomains = state.filteredDomains.filter(d => d.id !== id);
+                saveCache();
+                renderDomains();
+                updateStats();
+                closeDetail();
+            }
+        });
+
+        document.getElementById('import-btn').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        function openManualEntry() {
+            if (!state.currentDetail) return;
+
+            document.getElementById('manual-domain').value = state.currentDetail.domain;
+            document.getElementById('manual-registrar').value = state.currentDetail.registrar || '';
+            document.getElementById('manual-created').value = state.currentDetail.createdDate || '';
+            document.getElementById('manual-expiry').value = state.currentDetail.expiryDate || '';
+            document.getElementById('manual-price').value = state.currentDetail.renewalPrice || '';
+
+            document.getElementById('detail-panel').classList.remove('open');
+            document.getElementById('manual-entry-modal').classList.add('open');
+        }
+
+        document.getElementById('cancel-manual').addEventListener('click', () => {
+            document.getElementById('manual-entry-modal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('visible');
+            state.currentDetail = null;
+        });
+
+        document.getElementById('save-manual').addEventListener('click', () => {
+            if (!state.currentDetail) return;
+
+            const expiryDate = document.getElementById('manual-expiry').value;
+            let daysLeft = null;
+            if (expiryDate) {
+                const expiry = new Date(expiryDate);
+                daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+            }
+
+            state.currentDetail.registrar = document.getElementById('manual-registrar').value || null;
+            state.currentDetail.createdDate = document.getElementById('manual-created').value || null;
+            state.currentDetail.expiryDate = expiryDate || null;
+            state.currentDetail.daysLeft = daysLeft;
+            state.currentDetail.renewalPrice = document.getElementById('manual-price').value || null;
+            state.currentDetail.lookupFailed = false;
+
+            saveCache();
+            renderDomains();
+            updateStats();
+
+            document.getElementById('manual-entry-modal').classList.remove('open');
+            document.getElementById('overlay').classList.remove('visible');
+            state.currentDetail = null;
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCache();
+            updateLastSync();
+        });
+    </script>
+</body>
+</html>
