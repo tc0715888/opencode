@@ -953,35 +953,79 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
         const ADMIN_PASSWORD = 'td2024';
         const CACHE_KEY = 'domains_td_list';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2nfdVS_Firm9C6P_Z4TFPa137Ut5lL5g",
+            authDomain: "domains-6d434.firebaseapp.com",
+            projectId: "domains-6d434",
+            storageBucket: "domains-6d434.firebasestorage.app",
+            messagingSenderId: "1044656642021",
+            appId: "1:1044656642021:web:b1cf4371fe75558ec0010c",
+            measurementId: "G-EPGCSMRDTF",
+            databaseURL: "https://domains-6d434-default-rtdb.firebaseio.com"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
 
         let state = {
             domains: [],
             filteredDomains: [],
             isAdmin: false,
-            excelData: null
+            excelData: null,
+            synced: false
         };
 
         function loadDomains() {
-            try {
+            const domainsRef = database.ref('domains');
+
+            domainsRef.once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data && data.domains) {
+                    state.domains = data.domains;
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(state.domains));
+                } else {
+                    const cached = localStorage.getItem(CACHE_KEY);
+                    if (cached) {
+                        state.domains = JSON.parse(cached);
+                    }
+                }
+                state.synced = true;
+                renderDomains();
+                updateStats();
+                updateLastUpdated();
+            }).catch((e) => {
+                console.warn('Failed to load from Firebase, using cache:', e);
                 const cached = localStorage.getItem(CACHE_KEY);
                 if (cached) {
                     state.domains = JSON.parse(cached);
                 }
-            } catch (e) {
-                console.warn('Failed to load domains:', e);
-            }
-            renderDomains();
-            updateStats();
-            updateLastUpdated();
+                state.synced = true;
+                renderDomains();
+                updateStats();
+                updateLastUpdated();
+            });
         }
 
         function saveDomains() {
             try {
                 localStorage.setItem(CACHE_KEY, JSON.stringify(state.domains));
                 updateLastUpdated();
+
+                database.ref('domains').set({
+                    domains: state.domains,
+                    lastUpdated: new Date().toISOString()
+                }).catch((e) => {
+                    console.warn('Failed to sync to Firebase:', e);
+                });
+            } catch (e) {
+                console.warn('Failed to save domains:', e);
+            }
             } catch (e) {
                 console.warn('Failed to save domains:', e);
             }
