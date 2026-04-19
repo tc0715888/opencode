@@ -959,19 +959,29 @@
         const ADMIN_PASSWORD = 'td2024';
         const CACHE_KEY = 'domains_td_list';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2nfdVS_Firm9C6P_Z4TFPa137Ut5lL5g",
-            authDomain: "domains-6d434.firebaseapp.com",
-            projectId: "domains-6d434",
-            storageBucket: "domains-6d434.firebasestorage.app",
-            messagingSenderId: "1044656642021",
-            appId: "1:1044656642021:web:b1cf4371fe75558ec0010c",
-            measurementId: "G-EPGCSMRDTF",
-            databaseURL: "https://domains-6d434-default-rtdb.firebaseio.com"
-        };
+        let database = null;
+        let firebaseReady = false;
 
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        try {
+            const firebaseConfig = {
+                apiKey: "AIzaSyA2nfdVS_Firm9C6P_Z4TFPa137Ut5lL5g",
+                authDomain: "domains-6d434.firebaseapp.com",
+                projectId: "domains-6d434",
+                storageBucket: "domains-6d434.firebasestorage.app",
+                messagingSenderId: "1044656642021",
+                appId: "1:1044656642021:web:b1cf4371fe75558ec0010c",
+                measurementId: "G-EPGCSMRDTF",
+                databaseURL: "https://domains-6d434-default-rtdb.firebaseio.com"
+            };
+
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                database = firebase.database();
+                firebaseReady = true;
+            }
+        } catch (e) {
+            console.warn('Firebase init failed:', e);
+        }
 
         let state = {
             domains: [],
@@ -982,25 +992,35 @@
         };
 
         function loadDomains() {
-            const domainsRef = database.ref('domains');
-
-            domainsRef.once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data && data.domains) {
-                    state.domains = data.domains;
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(state.domains));
-                } else {
+            if (firebaseReady && database) {
+                const domainsRef = database.ref('domains');
+                domainsRef.once('value').then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.domains) {
+                        state.domains = data.domains;
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(state.domains));
+                    } else {
+                        const cached = localStorage.getItem(CACHE_KEY);
+                        if (cached) {
+                            state.domains = JSON.parse(cached);
+                        }
+                    }
+                    state.synced = true;
+                    renderDomains();
+                    updateStats();
+                    updateLastUpdated();
+                }).catch((e) => {
+                    console.warn('Failed to load from Firebase:', e);
                     const cached = localStorage.getItem(CACHE_KEY);
                     if (cached) {
                         state.domains = JSON.parse(cached);
                     }
-                }
-                state.synced = true;
-                renderDomains();
-                updateStats();
-                updateLastUpdated();
-            }).catch((e) => {
-                console.warn('Failed to load from Firebase, using cache:', e);
+                    state.synced = true;
+                    renderDomains();
+                    updateStats();
+                    updateLastUpdated();
+                });
+            } else {
                 const cached = localStorage.getItem(CACHE_KEY);
                 if (cached) {
                     state.domains = JSON.parse(cached);
@@ -1009,7 +1029,7 @@
                 renderDomains();
                 updateStats();
                 updateLastUpdated();
-            });
+            }
         }
 
         function saveDomains() {
@@ -1017,12 +1037,14 @@
                 localStorage.setItem(CACHE_KEY, JSON.stringify(state.domains));
                 updateLastUpdated();
 
-                database.ref('domains').set({
-                    domains: state.domains,
-                    lastUpdated: new Date().toISOString()
-                }).catch((e) => {
-                    console.warn('Failed to sync to Firebase:', e);
-                });
+                if (firebaseReady && database) {
+                    database.ref('domains').set({
+                        domains: state.domains,
+                        lastUpdated: new Date().toISOString()
+                    }).catch((e) => {
+                        console.warn('Failed to sync to Firebase:', e);
+                    });
+                }
             } catch (e) {
                 console.warn('Failed to save domains:', e);
             }
@@ -1483,19 +1505,19 @@
             XLSX.writeFile(wb, 'domains-export.xlsx');
         }
 
-        document.getElementById('search-input').addEventListener('input', filterDomains);
-        document.getElementById('filter-tld').addEventListener('change', filterDomains);
-        document.getElementById('filter-status').addEventListener('change', filterDomains);
-        document.getElementById('filter-price').addEventListener('change', filterDomains);
-
-        document.getElementById('password-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') submitPassword();
-        });
-
         window.addEventListener('DOMContentLoaded', () => {
             loadDomains();
             state.filteredDomains = [...state.domains];
             renderDomains();
+
+            document.getElementById('search-input').addEventListener('input', filterDomains);
+            document.getElementById('filter-tld').addEventListener('change', filterDomains);
+            document.getElementById('filter-status').addEventListener('change', filterDomains);
+            document.getElementById('filter-price').addEventListener('change', filterDomains);
+
+            document.getElementById('password-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitPassword();
+            });
         });
     </script>
 </body>
