@@ -1,12 +1,12 @@
-# Domain Matrix - Domain Management Console
+# DOMAIN SELLING PLATFORM - domains.td
 
 ## 1. Concept & Vision
 
-A cyberpunk-inspired domain management dashboard that feels like a command center for tracking digital assets. The interface evokes the feeling of hacking into a futuristic network operations center - dark backgrounds, glowing data streams, and crisp monospace typography. Domain management shouldn't feel like accounting; it should feel like controlling critical infrastructure.
+A sleek, cyberpunk-inspired domain marketplace for showcasing and selling premium domain names. The platform exudes exclusivity and tech-forward aesthetics, positioning each domain as a valuable digital asset. Access is restricted to the owner via password authentication, while visitors can freely browse the domain listings.
 
 ## 2. Design Language
 
-**Aesthetic Direction:** Cyberpunk terminal / sci-fi command center - inspired by Blade Runner, The Matrix, and modern DevOps dashboards.
+**Aesthetic Direction:** Cyberpunk command center meets luxury showroom - dark, glowing, and premium.
 
 **Color Palette:**
 - Background Primary: `#0a0e17` (deep space black)
@@ -14,160 +14,135 @@ A cyberpunk-inspired domain management dashboard that feels like a command cente
 - Background Card: `#1a2234` (elevated surface)
 - Accent Primary: `#00f0ff` (cyan glow)
 - Accent Secondary: `#7c3aed` (electric purple)
-- Accent Warning: `#f59e0b` (amber alert)
-- Accent Danger: `#ef4444` (red alert)
-- Accent Success: `#10b981` (green confirmation)
+- Accent Gold: `#fuda01` (premium/price highlight)
+- Accent Green: `#10b981` (available/success)
+- Accent Red: `#ef4444` (sold/unavailable)
 - Text Primary: `#f1f5f9` (bright white)
 - Text Secondary: `#94a3b8` (muted gray)
-- Border: `#1e3a5f` (subtle blue border)
 
 **Typography:**
 - Headings: "Orbitron" (sci-fi geometric sans)
 - Body/Data: "JetBrains Mono" (monospace for data)
 - UI Elements: "Inter" (clean UI text)
 
-**Spatial System:**
-- Base unit: 8px
-- Card padding: 24px
-- Section gaps: 32px
-- Border radius: 8px (subtle, not rounded)
-
 **Motion Philosophy:**
-- Scanline effects on hover (horizontal line sweep)
-- Glow pulse on status indicators
-- Smooth fade-in for data rows (staggered 50ms)
-- Typing effect for loading states
-- Subtle grid background animation
-
-**Visual Assets:**
-- Custom SVG icons with glow effects
-- ASCII-style decorative elements
-- Grid/matrix background pattern
-- Data stream visual indicators
+- Subtle glow pulses on featured domains
+- Smooth hover transitions with border glow
+- Scan-line effect on interactive elements
+- Staggered fade-in for domain cards
 
 ## 3. Layout & Structure
 
 ### Header
-- Logo: "DOMAIN MATRIX" with glitch effect
-- Status bar showing connection status and last sync time
-- Import button (prominent)
+- Logo: "DOMAINS.TD" with glitch effect
+- Tagline: "Premium Domain Marketplace"
+- Owner access button (locked icon)
 
-### Main Content Area
-- **Control Bar:** Search/filter, bulk actions, view toggle (table/grid)
-- **Data Table:** Domain list with sortable columns
-- **Detail Panel:** Slide-in panel showing full domain info
+### Hero Section
+- Brief intro text
+- Total domains count
+- Total portfolio value
 
-### Data Table Columns
-1. Status indicator (color-coded dot)
-2. Domain name (primary key, bold)
-3. Registrar
-4. Registration Date
-5. Expiration Date
-6. Days Until Expiry (with color coding)
-7. Renewal Price
-8. Auto-renew status
-9. Actions (view details, whois lookup)
+### Domain Grid
+- Card-based layout (3 columns on desktop, 1 on mobile)
+- Each card shows: domain name, price, TLD category, quick actions
+
+### Domain Card Contents
+- Domain name (prominent, clickable)
+- Price in USD (gold accent)
+- TLD type badge (.com, .ai, .io, etc.)
+- Status: Available / In Negotiation / Sold
+- Inquiry button
+
+### Admin Panel (Password Protected)
+- Password input modal
+- Excel import functionality
+- Bulk domain management
+- Price editing
+- Sold status toggle
+- Export current list
 
 ### Footer
-- Statistics bar: total domains, expiring soon, expired count
-- Version/info
+- Contact information
+- Last updated timestamp
 
 ## 4. Features & Interactions
 
-### Excel Import
-- Drag-and-drop zone or file picker
-- Supports .xlsx, .xls, .csv formats
-- Auto-detects domain column(s) from headers
-- Preview before import with column mapping
-- Progress indicator during WHOIS lookup
+### Public Features
+- Browse all available domains
+- Filter by TLD, price range, status
+- Search domains
+- View domain details
+- Contact/inquiry button (mailto link)
 
-### Domain Data Display
-- Domains sorted by expiration date (default)
-- Color-coded expiry warnings:
-  - Red: expired or < 30 days
-  - Amber: 30-90 days
-  - Green: > 90 days
-- Hover reveals quick actions
+### Admin Features (Password Protected)
+- Password: user-defined, stored in browser session
+- Import domains from Excel (.xlsx, .csv)
+- Auto-detect domain column, add price column
+- Edit individual domain price/status
+- Mark domains as sold
+- Remove domains
+- Export full list to Excel
 
-### WHOIS Lookup
-- Batch lookup with rate limiting (avoid API throttling)
-- Cache results to reduce API calls
-- Manual refresh button per domain
-- Full WHOIS data in detail panel
+### Domain Status
+- Available (green) - can be purchased
+- In Negotiation (amber) - being discussed
+- Sold (red) - no longer available
 
-### Search & Filter
-- Real-time search across all fields
-- Filter by: status, registrar, expiry range, price range
-- Bulk select for batch operations
-
-### Export
-- Export current view to Excel
-- Export WHOIS data for all domains
-
-### Detail Panel
-- Slides in from right
-- Full WHOIS record display
-- Timeline of key dates
-- Registrar contact info (if available)
-- Historical data if previously looked up
+### Excel Import Format
+| Column | Content | Required |
+|--------|---------|----------|
+| A | Domain Name | Yes |
+| B | Price (USD) | Yes |
+| C | Status | No (default: Available) |
+| D | Notes | No |
 
 ## 5. Component Inventory
 
-### Status Indicator
-- Pulsing dot with glow
-- States: active (green), expiring (amber), expired (red), unknown (gray)
+### Domain Card
+- Default: dark card with subtle border
+- Hover: cyan border glow, slight lift
+- Featured: pulsing gold accent border
 
-### Domain Row
-- Default: subtle background
-- Hover: glow border, scanline effect
-- Selected: accent border left
-- Loading: skeleton shimmer
+### Price Badge
+- Large, gold-colored price
+- "$" prefix with proper formatting
 
-### Import Zone
-- Dashed border, becomes solid on drag-over
-- Icon + instructional text
-- Progress bar during processing
+### Status Badge
+- Available: green background, white text
+- Negotiation: amber background, dark text
+- Sold: red background, white text
 
-### Data Card (Grid View)
-- Elevated surface with subtle glow
-- Domain name prominent
-- Expiry countdown as large number
-- Status badge in corner
+### Lock Icon Button
+- Unlocked state: cyan glow
+- Locked state: gray, clicking shows password prompt
 
-### Button Variants
-- Primary: cyan glow, filled
-- Secondary: outline with hover fill
-- Danger: red accent
-- Ghost: text only with underline on hover
-
-### Input Fields
-- Dark background with subtle border
-- Cyan glow on focus
-- Search icon prefix
+### Password Modal
+- Dark modal with centered form
+- Password input field
+- Show/hide password toggle
+- Submit and Cancel buttons
 
 ## 6. Technical Approach
 
-**Stack:** Single HTML file with embedded CSS/JS for portability
+**Stack:** Single HTML file with embedded CSS/JS
 
-**Libraries:**
-- SheetJS (xlsx.full.min.js) for Excel parsing
-- Custom WHOIS lookup via public API (whoisxmlapi.com or similar)
+**Key Libraries:**
+- SheetJS (xlsx) for Excel parsing and export
 
-**Data Flow:**
-1. User imports Excel → SheetJS parses → domains extracted
-2. For each domain, WHOIS lookup triggered (with batching)
-3. Results cached in localStorage for persistence
-4. UI updates reactively
+**Data Storage:**
+- Browser localStorage for domain list
+- Session storage for admin password verification
 
-**API Strategy:**
-- Use whoisxmlapi.com free tier for WHOIS data
-- Fallback to cached data if API fails
-- Rate limiting: 1 request/second to avoid throttling
+**Security:**
+- Simple password check (client-side, for convenience not high security)
+- Password stored in sessionStorage (cleared on browser close)
+- No sensitive data exposed publicly
 
-**Storage:**
-- localStorage for cached WHOIS data
-- Session state for current import/view
+**Export:**
+- Export current list to Excel with all fields
+- Include: Domain, Price, Status, Notes, Last Updated
 
-**Domain Column Detection:**
-- Look for headers containing "domain", "domain name", "url", "site"
-- Or prompt user to select column if ambiguous
+**Integration:**
+- domains.td - point this domain to this HTML file
+- Contact form uses mailto: links

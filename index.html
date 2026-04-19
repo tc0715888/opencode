@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMAINS.TD - Premium Domain Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-elevated: #232b3e;
+            --accent-cyan: #00f0ff;
+            --accent-purple: #7c3aed;
+            --accent-gold: #fuda01;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #1e3a5f;
+            --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.4);
+            --glow-gold: 0 0 20px rgba(249, 160, 1, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                linear-gradient(90deg, transparent 49.5%, rgba(0, 240, 255, 0.03) 50%, transparent 50.5%),
+                linear-gradient(0deg, transparent 49.5%, rgba(0, 240, 255, 0.03) 50%, transparent 50.5%);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        header {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.9) 0%, transparent 100%);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+            letter-spacing: 4px;
+            position: relative;
+        }
+
+        .logo::before {
+            content: 'DOMAINS.TD';
+            position: absolute;
+            left: 2px;
+            top: 0;
+            color: var(--accent-purple);
+            opacity: 0.5;
+            clip-path: inset(0 0 50% 0);
+            animation: glitch 3s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% { transform: translate(0); }
+            92% { transform: translate(-2px, 1px); }
+            94% { transform: translate(2px, -1px); }
+        }
+
+        .tagline {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 4px;
+        }
+
+        .admin-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .admin-btn.unlocked {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .admin-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .hero {
+            padding: 60px 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .stat-value.gold {
+            color: var(--accent-gold);
+            text-shadow: var(--glow-gold);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+
+        .controls {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+        }
+
+        .search-box::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .domains-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 20px 0 60px;
+        }
+
+        .domain-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .domain-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .domain-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), var(--glow-cyan);
+        }
+
+        .domain-card:hover::before {
+            opacity: 1;
+        }
+
+        .domain-card.sold {
+            opacity: 0.6;
+        }
+
+        .domain-card.sold::before {
+            background: var(--accent-red);
+            opacity: 1;
+        }
+
+        .domain-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            word-break: break-all;
+        }
+
+        .domain-card.sold .domain-name {
+            color: var(--text-secondary);
+            text-decoration: line-through;
+        }
+
+        .tld-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent-purple);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .price {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-shadow: var(--glow-gold);
+            margin-bottom: 16px;
+        }
+
+        .price span {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .domain-card.sold .price {
+            color: var(--accent-red);
+            text-shadow: none;
+            font-size: 1.2rem;
+        }
+
+        .domain-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-badge.available {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .status-badge.negotiation {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .status-badge.sold {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .notes {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            min-height: 20px;
+        }
+
+        .domain-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, #0891b2 100%);
+            color: var(--bg-primary);
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            box-shadow: var(--glow-cyan);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: 1px solid var(--accent-cyan);
+            padding: 10px 16px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            padding: 10px 16px;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .empty-state h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+        }
+
+        footer {
+            padding: 30px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            min-width: 400px;
+            max-width: 90vw;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+
+        .overlay.visible .modal {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            margin-bottom: 24px;
+        }
+
+        .modal-field {
+            margin-bottom: 20px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .modal-field input,
+        .modal-field select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .modal-field input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .password-toggle:hover {
+            color: var(--accent-cyan);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+        }
+
+        .import-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .import-zone:hover,
+        .import-zone.dragover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .import-zone-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300f0ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+
+        .import-zone h4 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-cyan);
+            margin-bottom: 8px;
+        }
+
+        .import-zone p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .admin-panel {
+            margin-bottom: 30px;
+            padding: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+        }
+
+        .admin-panel h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-panel h3 svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .edit-modal {
+            min-width: 500px;
+        }
+
+        .edit-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 1.4rem; }
+            .stats-row { gap: 30px; }
+            .stat-value { font-size: 2rem; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: none; }
+            .filters { justify-content: center; }
+            .domains-grid { grid-template-columns: 1fr; }
+            .modal { min-width: auto; width: 90vw; padding: 24px; }
+            .edit-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div>
+                    <div class="logo">DOMAINS.TD</div>
+                    <div class="tagline">Premium Domain Marketplace</div>
+                </div>
+                <button class="admin-btn" id="admin-btn" onclick="toggleAdminPanel()">
+                    <svg id="lock-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <span id="admin-btn-text">Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Premium Domain Names For Sale</h1>
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-value" id="total-domains">0</div>
+                    <div class="stat-label">Total Domains</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="available-count">0</div>
+                    <div class="stat-label">Available</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value gold" id="total-value">$0</div>
+                    <div class="stat-label">Portfolio Value</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="container">
+        <div class="admin-panel hidden" id="admin-panel">
+            <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Admin Panel
+            </h3>
+
+            <div class="import-zone" id="import-zone">
+                <div class="import-zone-icon"></div>
+                <h4>Import Excel</h4>
+                <p>Drop .xlsx, .xls, or .csv file here, or click to browse</p>
+                <p style="margin-top: 8px; color: var(--accent-cyan);">Columns: Domain, Price (USD), Status (optional), Notes (optional)</p>
+            </div>
+            <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+
+            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                <button class="btn btn-secondary" onclick="exportDomains()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Export List
+                </button>
+                <button class="btn btn-danger" onclick="clearAllDomains()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search domains...">
+            </div>
+            <div class="filters">
+                <select class="filter-select" id="filter-tld">
+                    <option value="">All TLDs</option>
+                </select>
+                <select class="filter-select" id="filter-status">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="negotiation">In Negotiation</option>
+                    <option value="sold">Sold</option>
+                </select>
+                <select class="filter-select" id="filter-price">
+                    <option value="">All Prices</option>
+                    <option value="0-500">Under $500</option>
+                    <option value="500-1000">$500 - $1,000</option>
+                    <option value="1000-5000">$1,000 - $5,000</option>
+                    <option value="5000-999999">$5,000+</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="domains-grid" id="domains-grid">
+            <div class="empty-state">
+                <div class="empty-state-icon"></div>
+                <h3>NO DOMAINS FOUND</h3>
+                <p>Import an Excel file to add domains for sale</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>DOMAINS.TD &copy; 2024 | Last updated: <span id="last-updated">Never</span></p>
+        </div>
+    </footer>
+
+    <div class="overlay" id="password-overlay">
+        <div class="modal">
+            <div class="modal-title">Admin Access</div>
+            <div class="modal-field">
+                <label>Enter Password</label>
+                <div class="password-input-wrapper">
+                    <input type="password" id="password-input" placeholder="Enter admin password" style="padding-right: 44px;">
+                    <button class="password-toggle" onclick="togglePasswordVisibility()">
+                        <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closePasswordModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitPassword()">Unlock</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="edit-overlay">
+        <div class="modal edit-modal">
+            <div class="modal-title">Edit Domain</div>
+            <input type="hidden" id="edit-id">
+            <div class="modal-field">
+                <label>Domain Name</label>
+                <input type="text" id="edit-domain" readonly style="opacity: 0.6; cursor: not-allowed;">
+            </div>
+            <div class="edit-row">
+                <div class="modal-field">
+                    <label>Price (USD)</label>
+                    <input type="number" id="edit-price" placeholder="0.00">
+                </div>
+                <div class="modal-field">
+                    <label>Status</label>
+                    <select id="edit-status">
+                        <option value="available">Available</option>
+                        <option value="negotiation">In Negotiation</option>
+                        <option value="sold">Sold</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>Notes</label>
+                <input type="text" id="edit-notes" placeholder="Optional notes">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDomain()">Save</button>
+                <button class="btn btn-danger" onclick="deleteDomain()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="import-overlay">
+        <div class="modal">
+            <div class="modal-title">Map Excel Columns</div>
+            <div class="modal-field">
+                <label>Domain Column</label>
+                <select id="domain-col"></select>
+            </div>
+            <div class="modal-field">
+                <label>Price Column</label>
+                <select id="price-col"></select>
+            </div>
+            <div class="modal-field">
+                <label>Status Column (optional)</label>
+                <select id="status-col">
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label>Notes Column (optional)</label>
+                <select id="notes-col">
+                    <option value="">-- None --</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmImport()">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'td2024';
+        const CACHE_KEY = 'domains_td_list';
+
+        let state = {
+            domains: [],
+            filteredDomains: [],
+            isAdmin: false,
+            excelData: null
+        };
+
+        function loadDomains() {
+            try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    state.domains = JSON.parse(cached);
+                }
+            } catch (e) {
+                console.warn('Failed to load domains:', e);
+            }
+            renderDomains();
+            updateStats();
+            updateLastUpdated();
+        }
+
+        function saveDomains() {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(state.domains));
+                updateLastUpdated();
+            } catch (e) {
+                console.warn('Failed to save domains:', e);
+            }
+        }
+
+        function updateLastUpdated() {
+            const el = document.getElementById('last-updated');
+            if (state.domains.length > 0) {
+                el.textContent = new Date().toLocaleString();
+            } else {
+                el.textContent = 'Never';
+            }
+        }
+
+        function updateStats() {
+            const available = state.domains.filter(d => d.status !== 'sold').length;
+            const totalValue = state.domains
+                .filter(d => d.status !== 'sold')
+                .reduce((sum, d) => sum + (parseFloat(d.price) || 0), 0);
+
+            document.getElementById('total-domains').textContent = state.domains.length;
+            document.getElementById('available-count').textContent = available;
+            document.getElementById('total-value').textContent = '$' + totalValue.toLocaleString();
+        }
+
+        function getTLD(domain) {
+            const parts = domain.split('.');
+            return parts.length > 1 ? '.' + parts[parts.length - 1] : '';
+        }
+
+        function getAllTLDs() {
+            const tlds = new Set();
+            state.domains.forEach(d => {
+                const tld = getTLD(d.domain);
+                if (tld) tlds.add(tld);
+            });
+            return Array.from(tlds).sort();
+        }
+
+        function updateTLDOptions() {
+            const select = document.getElementById('filter-tld');
+            const tlds = getAllTLDs();
+            select.innerHTML = '<option value="">All TLDs</option>' +
+                tlds.map(t => `<option value="${t}">${t}</option>`).join('');
+        }
+
+        function filterDomains() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const tld = document.getElementById('filter-tld').value;
+            const status = document.getElementById('filter-status').value;
+            const priceRange = document.getElementById('filter-price').value;
+
+            state.filteredDomains = state.domains.filter(d => {
+                if (search && !d.domain.toLowerCase().includes(search)) return false;
+                if (tld && !d.domain.endsWith(tld)) return false;
+                if (status && d.status !== status) return false;
+
+                if (priceRange) {
+                    const price = parseFloat(d.price) || 0;
+                    const [min, max] = priceRange.split('-').map(Number);
+                    if (price < min || price > max) return false;
+                }
+
+                return true;
+            });
+
+            renderDomains();
+        }
+
+        function renderDomains() {
+            const grid = document.getElementById('domains-grid');
+            updateTLDOptions();
+
+            if (state.filteredDomains.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <h3>${state.domains.length === 0 ? 'NO DOMAINS FOUND' : 'NO MATCHING DOMAINS'}</h3>
+                        <p>${state.domains.length === 0 ? 'Import an Excel file to add domains for sale' : 'Try adjusting your filters'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = state.filteredDomains.map(d => {
+                const tld = getTLD(d.domain);
+                const isSold = d.status === 'sold';
+                const statusLabel = isSold ? 'Sold' : (d.status === 'negotiation' ? 'In Negotiation' : 'Available');
+
+                return `
+                <div class="domain-card ${isSold ? 'sold' : ''}" data-id="${d.id}">
+                    <div class="tld-badge">${tld}</div>
+                    <div class="domain-name">${d.domain}</div>
+                    <div class="price">${isSold ? 'SOLD' : '$' + parseFloat(d.price || 0).toLocaleString()}</div>
+                    <div class="domain-meta">
+                        <span class="status-badge ${d.status}">${statusLabel}</span>
+                    </div>
+                    ${d.notes ? `<div class="notes">${d.notes}</div>` : '<div class="notes"></div>'}
+                    <div class="domain-actions">
+                        ${!isSold ? `
+                            <a href="mailto:inquire@domains.td?subject=Inquiry: ${d.domain}" class="btn btn-primary">Inquire</a>
+                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">Edit</button>
+                        ` : `
+                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">Edit</button>
+                        `}
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function toggleAdminPanel() {
+            if (state.isAdmin) {
+                state.isAdmin = false;
+                document.getElementById('admin-panel').classList.add('hidden');
+                document.getElementById('admin-btn').classList.remove('unlocked');
+                document.getElementById('admin-btn-text').textContent = 'Admin';
+                document.getElementById('lock-icon').innerHTML = '<path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>';
+                renderDomains();
+            } else {
+                document.getElementById('password-overlay').classList.add('visible');
+                document.getElementById('password-input').focus();
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('password-input');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+            }
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-overlay').classList.remove('visible');
+            document.getElementById('password-input').value = '';
+        }
+
+        function submitPassword() {
+            const password = document.getElementById('password-input').value;
+            if (password === ADMIN_PASSWORD) {
+                state.isAdmin = true;
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-btn').classList.add('unlocked');
+                document.getElementById('admin-btn-text').textContent = 'Locked';
+                document.getElementById('lock-icon').innerHTML = '<path d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>';
+                closePasswordModal();
+                renderDomains();
+            } else {
+                alert('Incorrect password');
+                document.getElementById('password-input').value = '';
+                document.getElementById('password-input').focus();
+            }
+        }
+
+        function openEditModal(id) {
+            const domain = state.domains.find(d => d.id === id);
+            if (!domain) return;
+
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-domain').value = domain.domain;
+            document.getElementById('edit-price').value = domain.price || '';
+            document.getElementById('edit-status').value = domain.status || 'available';
+            document.getElementById('edit-notes').value = domain.notes || '';
+
+            document.getElementById('edit-overlay').classList.add('visible');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-overlay').classList.remove('visible');
+        }
+
+        function saveDomain() {
+            const id = document.getElementById('edit-id').value;
+            const domain = state.domains.find(d => d.id === id);
+            if (!domain) return;
+
+            domain.price = document.getElementById('edit-price').value;
+            domain.status = document.getElementById('edit-status').value;
+            domain.notes = document.getElementById('edit-notes').value;
+
+            saveDomains();
+            filterDomains();
+            updateStats();
+            closeEditModal();
+        }
+
+        function deleteDomain() {
+            const id = document.getElementById('edit-id').value;
+            if (!confirm('Delete this domain?')) return;
+
+            state.domains = state.domains.filter(d => d.id !== id);
+            saveDomains();
+            filterDomains();
+            updateStats();
+            closeEditModal();
+        }
+
+        function clearAllDomains() {
+            if (!confirm('Delete ALL domains? This cannot be undone.')) return;
+            state.domains = [];
+            saveDomains();
+            filterDomains();
+            updateStats();
+        }
+
+        function parseExcel(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        resolve({ headers: jsonData[0] || [], rows: jsonData.slice(1).filter(r => r.some(c => c)) });
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        document.getElementById('import-zone').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        document.getElementById('import-zone').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        });
+
+        document.getElementById('import-zone').addEventListener('dragleave', () => {
+            e.currentTarget.classList.remove('dragover');
+        });
+
+        document.getElementById('import-zone').addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) await handleFile(file);
+        });
+
+        document.getElementById('file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) await handleFile(file);
+        });
+
+        async function handleFile(file) {
+            try {
+                state.excelData = await parseExcel(file);
+                const headers = state.excelData.headers;
+
+                const domainIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('domain'));
+                const priceIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('price'));
+                const statusIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('status'));
+                const notesIdx = headers.findIndex(h => String(h || '').toLowerCase().includes('note'));
+
+                document.getElementById('domain-col').innerHTML = headers.map((h, i) => `<option value="${i}" ${i === domainIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
+                document.getElementById('price-col').innerHTML = headers.map((h, i) => `<option value="${i}" ${i === priceIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
+
+                const statusSelect = document.getElementById('status-col');
+                statusSelect.innerHTML = '<option value="">-- None --</option>' + headers.map((h, i) => `<option value="${i}" ${i === statusIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
+
+                const notesSelect = document.getElementById('notes-col');
+                notesSelect.innerHTML = '<option value="">-- None --</option>' + headers.map((h, i) => `<option value="${i}" ${i === notesIdx ? 'selected' : ''}>${h || 'Column ' + (i+1)}</option>`).join('');
+
+                document.getElementById('import-overlay').classList.add('visible');
+            } catch (err) {
+                alert('Failed to parse Excel: ' + err.message);
+            }
+        }
+
+        function closeImportModal() {
+            document.getElementById('import-overlay').classList.remove('visible');
+            document.getElementById('file-input').value = '';
+        }
+
+        function confirmImport() {
+            const domainCol = parseInt(document.getElementById('domain-col').value);
+            const priceCol = parseInt(document.getElementById('price-col').value);
+            const statusCol = document.getElementById('status-col').value ? parseInt(document.getElementById('status-col').value) : -1;
+            const notesCol = document.getElementById('notes-col').value ? parseInt(document.getElementById('notes-col').value) : -1;
+
+            const newDomains = [];
+            for (const row of state.excelData.rows) {
+                let domain = String(row[domainCol] || '').toLowerCase().trim();
+                if (!domain || !domain.match(/^[a-z0-9]+([-a-z0-9]*[a-z0-9])*(\.[a-z]{2,})+$/i)) continue;
+
+                const price = String(row[priceCol] || '0').replace(/[$,]/g, '');
+                const status = statusCol >= 0 ? String(row[statusCol] || 'available').toLowerCase() : 'available';
+                const notes = notesCol >= 0 ? String(row[notesCol] || '') : '';
+
+                let normalizedStatus = 'available';
+                if (status.includes('sold') || status.includes('purc')) normalizedStatus = 'sold';
+                else if (status.includes('negot') || status.includes('offer') || status.includes('inqui')) normalizedStatus = 'negotiation';
+
+                newDomains.push({
+                    id: crypto.randomUUID(),
+                    domain,
+                    price: parseFloat(price) || 0,
+                    status: normalizedStatus,
+                    notes
+                });
+            }
+
+            if (newDomains.length === 0) {
+                alert('No valid domains found');
+                return;
+            }
+
+            state.domains = newDomains;
+            saveDomains();
+            filterDomains();
+            updateStats();
+            closeImportModal();
+        }
+
+        function exportDomains() {
+            if (state.domains.length === 0) {
+                alert('No domains to export');
+                return;
+            }
+
+            const data = state.domains.map(d => ({
+                'Domain': d.domain,
+                'Price (USD)': d.price,
+                'Status': d.status === 'sold' ? 'Sold' : (d.status === 'negotiation' ? 'In Negotiation' : 'Available'),
+                'Notes': d.notes || ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Domains');
+            XLSX.writeFile(wb, 'domains-export.xlsx');
+        }
+
+        document.getElementById('search-input').addEventListener('input', filterDomains);
+        document.getElementById('filter-tld').addEventListener('change', filterDomains);
+        document.getElementById('filter-status').addEventListener('change', filterDomains);
+        document.getElementById('filter-price').addEventListener('change', filterDomains);
+
+        document.getElementById('password-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitPassword();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadDomains();
+            state.filteredDomains = [...state.domains];
+            renderDomains();
+        });
+    </script>
+</body>
+</html>
