@@ -880,6 +880,25 @@
         </div>
     </div>
 
+    <div class="overlay" id="contact-overlay">
+        <div class="modal" style="text-align: center;">
+            <div class="modal-title">联系方式</div>
+            <div style="padding: 20px 0;">
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">微信</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; color: var(--accent-cyan);">qwert181819</div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">邮箱</div>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--accent-cyan);">china@yyds.be</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeContactModal()" style="width: 100%;">关闭</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const ADMIN_PASSWORD = 'td2024';
         const CACHE_KEY = 'domains_td_list';
@@ -1018,10 +1037,10 @@
                     ${d.notes ? `<div class="notes">${d.notes}</div>` : '<div class="notes"></div>'}
                     <div class="domain-actions">
                         ${!isSold ? `
-                            <a href="mailto:inquire@domains.td?subject=Inquiry: ${d.domain}" class="btn btn-primary">询价</a>
-                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">编辑</button>
+                            <button class="btn btn-primary" onclick="openContactModal('${d.domain}')">询价</button>
+                            ${state.isAdmin ? `<button class="btn btn-secondary" onclick="openEditModal('${d.id}')">编辑</button>` : ''}
                         ` : `
-                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">编辑</button>
+                            ${state.isAdmin ? `<button class="btn btn-secondary" onclick="openEditModal('${d.id}')">编辑</button>` : ''}
                         `}
                     </div>
                 </div>
@@ -1146,15 +1165,16 @@
                 reader.onload = (e) => {
                     try {
                         const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array', cellDates: true, cellNF: true });
+                        const workbook = XLSX.read(data, { type: 'array', cellDates: true, cellNF: false });
                         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
-                        const sheetData = workbook.SheetNames[0];
+
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
+
                         resolve({
                             headers: jsonData[0] || [],
                             rows: jsonData.slice(1).filter(r => r.some(c => c)),
                             workbook: workbook,
-                            sheetName: sheetData
+                            sheetName: workbook.SheetNames[0]
                         });
                     } catch (err) {
                         reject(err);
@@ -1166,20 +1186,54 @@
         }
 
         function excelSerialToDate(serial) {
-            if (!serial) return null;
-            if (typeof serial === 'string' && serial.match(/^\d{4}-\d{2}-\d{2}/)) {
-                return serial.substring(0, 10);
+            if (!serial && serial !== 0) return null;
+
+            if (typeof serial === 'object') {
+                if (serial instanceof Date) {
+                    return serial.toISOString().substring(0, 10);
+                }
+                if (serial.toString !== undefined) {
+                    const str = serial.toString();
+                    if (str.match(/^\d{4}-\d{2}-\d{2}/)) {
+                        return str.substring(0, 10);
+                    }
+                }
+                return null;
             }
-            if (typeof serial === 'object' && serial instanceof Date) {
-                return serial.toISOString().substring(0, 10);
+
+            const str = String(serial).trim();
+
+            if (str.match(/^\d{4}-\d{2}-\d{2}/)) {
+                return str.substring(0, 10);
             }
-            if (typeof serial === 'number') {
-                const excelEpoch = new Date(1900, 0, 1);
-                const date = new Date(excelEpoch.getTime() + (serial - 2) * 86400000);
-                if (!isNaN(date.getTime()) && date.getFullYear() > 1900 && date.getFullYear() < 2100) {
-                    return date.toISOString().substring(0, 10);
+
+            const parts = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+            if (parts) {
+                let year = parseInt(parts[3]);
+                let month = parseInt(parts[1]);
+                let day = parseInt(parts[2]);
+
+                if (year < 100) year = year > 50 ? 1900 + year : 2000 + year;
+                if (month > 12) [month, day] = [day, month];
+
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const date = new Date(dateStr);
+                if (!isNaN(date.getTime())) return dateStr;
+            }
+
+            const num = parseFloat(str);
+            if (!isNaN(num) && num > 25569 && num < 60000) {
+                const excelEpoch = new Date(Date.UTC(1900, 0, 1));
+                const date = new Date(excelEpoch.getTime() + (num - 2) * 86400000);
+                const year = date.getUTCFullYear();
+                if (year >= 1970 && year <= 2100) {
+                    const yyyy = date.getUTCFullYear();
+                    const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getUTCDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
                 }
             }
+
             return null;
         }
 
@@ -1244,6 +1298,14 @@
         function closeImportModal() {
             document.getElementById('import-overlay').classList.remove('visible');
             document.getElementById('file-input').value = '';
+        }
+
+        function openContactModal(domain) {
+            document.getElementById('contact-overlay').classList.add('visible');
+        }
+
+        function closeContactModal() {
+            document.getElementById('contact-overlay').classList.remove('visible');
         }
 
         function confirmImport() {
