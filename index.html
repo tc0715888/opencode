@@ -1023,9 +1023,13 @@
 
         function updateTLDOptions() {
             const select = document.getElementById('filter-tld');
+            const currentValue = select.value;
             const tlds = getAllTLDs();
-            select.innerHTML = '<option value="">All TLDs</option>' +
+            select.innerHTML = '<option value="">全部后缀</option>' +
                 tlds.map(t => `<option value="${t}">${t}</option>`).join('');
+            if (currentValue && tlds.includes(currentValue)) {
+                select.value = currentValue;
+            }
         }
 
         function filterDomains() {
