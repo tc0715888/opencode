@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOMAINS.TD - Premium Domain Marketplace</title>
+    <title>DOMAINS.TD - 优质域名市场</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
@@ -667,13 +667,13 @@
             <div class="header-content">
                 <div>
                     <div class="logo">DOMAINS.TD</div>
-                    <div class="tagline">Premium Domain Marketplace</div>
+                    <div class="tagline">优质域名市场</div>
                 </div>
                 <button class="admin-btn" id="admin-btn" onclick="toggleAdminPanel()">
                     <svg id="lock-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
-                    <span id="admin-btn-text">Admin</span>
+                    <span id="admin-btn-text">管理</span>
                 </button>
             </div>
         </div>
@@ -681,19 +681,19 @@
 
     <section class="hero">
         <div class="container">
-            <h1>Premium Domain Names For Sale</h1>
+            <h1>优质域名出售</h1>
             <div class="stats-row">
                 <div class="stat-box">
                     <div class="stat-value" id="total-domains">0</div>
-                    <div class="stat-label">Total Domains</div>
+                    <div class="stat-label">域名总数</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="available-count">0</div>
-                    <div class="stat-label">Available</div>
+                    <div class="stat-label">可售</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-value gold" id="total-value">$0</div>
-                    <div class="stat-label">Portfolio Value</div>
+                    <div class="stat-label">总价值</div>
                 </div>
             </div>
         </div>
@@ -706,14 +706,14 @@
                     <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                     <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                Admin Panel
+                管理面板
             </h3>
 
             <div class="import-zone" id="import-zone">
                 <div class="import-zone-icon"></div>
-                <h4>Import Excel</h4>
-                <p>Drop .xlsx, .xls, or .csv file here, or click to browse</p>
-                <p style="margin-top: 8px; color: var(--accent-cyan);">Columns: Domain, Price (USD), Status (optional), Notes (optional)</p>
+                <h4>导入 Excel</h4>
+                <p>拖拽 .xlsx, .xls, 或 .csv 文件到此处，或点击浏览</p>
+                <p style="margin-top: 8px; color: var(--accent-cyan);">列: 域名, 价格 (USD), 状态 (可选), 备注 (可选)</p>
             </div>
             <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
 
@@ -722,37 +722,37 @@
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                     </svg>
-                    Export List
+                    导出列表
                 </button>
                 <button class="btn btn-danger" onclick="clearAllDomains()">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
-                    Clear All
+                    清空全部
                 </button>
             </div>
         </div>
 
         <div class="controls">
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search domains...">
+                <input type="text" id="search-input" placeholder="搜索域名...">
             </div>
             <div class="filters">
                 <select class="filter-select" id="filter-tld">
-                    <option value="">All TLDs</option>
+                    <option value="">全部后缀</option>
                 </select>
                 <select class="filter-select" id="filter-status">
-                    <option value="">All Status</option>
-                    <option value="available">Available</option>
-                    <option value="negotiation">In Negotiation</option>
-                    <option value="sold">Sold</option>
+                    <option value="">全部状态</option>
+                    <option value="available">可售</option>
+                    <option value="negotiation">谈判中</option>
+                    <option value="sold">已售</option>
                 </select>
                 <select class="filter-select" id="filter-price">
-                    <option value="">All Prices</option>
-                    <option value="0-500">Under $500</option>
+                    <option value="">全部价格</option>
+                    <option value="0-500">$500 以下</option>
                     <option value="500-1000">$500 - $1,000</option>
                     <option value="1000-5000">$1,000 - $5,000</option>
-                    <option value="5000-999999">$5,000+</option>
+                    <option value="5000-999999">$5,000 以上</option>
                 </select>
             </div>
         </div>
@@ -760,25 +760,25 @@
         <div class="domains-grid" id="domains-grid">
             <div class="empty-state">
                 <div class="empty-state-icon"></div>
-                <h3>NO DOMAINS FOUND</h3>
-                <p>Import an Excel file to add domains for sale</p>
+                <h3>暂无域名</h3>
+                <p>导入 Excel 文件添加要出售的域名</p>
             </div>
         </div>
     </main>
 
     <footer>
         <div class="container">
-            <p>DOMAINS.TD &copy; 2024 | Last updated: <span id="last-updated">Never</span></p>
+            <p>DOMAINS.TD &copy; 2024 | 最后更新: <span id="last-updated">从未</span></p>
         </div>
     </footer>
 
     <div class="overlay" id="password-overlay">
         <div class="modal">
-            <div class="modal-title">Admin Access</div>
+            <div class="modal-title">管理员访问</div>
             <div class="modal-field">
-                <label>Enter Password</label>
+                <label>输入密码</label>
                 <div class="password-input-wrapper">
-                    <input type="password" id="password-input" placeholder="Enter admin password" style="padding-right: 44px;">
+                    <input type="password" id="password-input" placeholder="输入管理密码" style="padding-right: 44px;">
                     <button class="password-toggle" onclick="togglePasswordVisibility()">
                         <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -788,94 +788,94 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closePasswordModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="submitPassword()">Unlock</button>
+                <button class="btn btn-secondary" onclick="closePasswordModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitPassword()">解锁</button>
             </div>
         </div>
     </div>
 
     <div class="overlay" id="edit-overlay">
         <div class="modal edit-modal">
-            <div class="modal-title">Edit Domain</div>
+            <div class="modal-title">编辑域名</div>
             <input type="hidden" id="edit-id">
             <div class="modal-field">
-                <label>Domain Name</label>
+                <label>域名</label>
                 <input type="text" id="edit-domain" readonly style="opacity: 0.6; cursor: not-allowed;">
             </div>
             <div class="edit-row">
                 <div class="modal-field">
-                    <label>Price (USD)</label>
+                    <label>价格 (USD)</label>
                     <input type="number" id="edit-price" placeholder="0.00">
                 </div>
                 <div class="modal-field">
-                    <label>Status</label>
+                    <label>状态</label>
                     <select id="edit-status">
-                        <option value="available">Available</option>
-                        <option value="negotiation">In Negotiation</option>
-                        <option value="sold">Sold</option>
+                        <option value="available">可售</option>
+                        <option value="negotiation">谈判中</option>
+                        <option value="sold">已售</option>
                     </select>
                 </div>
             </div>
             <div class="edit-row">
                 <div class="modal-field">
-                    <label>Registration Date</label>
+                    <label>注册日期</label>
                     <input type="date" id="edit-created">
                 </div>
                 <div class="modal-field">
-                    <label>Expiration Date</label>
+                    <label>到期日期</label>
                     <input type="date" id="edit-expiry">
                 </div>
             </div>
             <div class="modal-field">
-                <label>Notes</label>
-                <input type="text" id="edit-notes" placeholder="Optional notes">
+                <label>备注</label>
+                <input type="text" id="edit-notes" placeholder="可选备注">
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveDomain()">Save</button>
-                <button class="btn btn-danger" onclick="deleteDomain()">Delete</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveDomain()">保存</button>
+                <button class="btn btn-danger" onclick="deleteDomain()">删除</button>
             </div>
         </div>
     </div>
 
     <div class="overlay" id="import-overlay">
         <div class="modal">
-            <div class="modal-title">Map Excel Columns</div>
+            <div class="modal-title">映射 Excel 列</div>
             <div class="modal-field">
-                <label>Domain Column</label>
+                <label>域名列</label>
                 <select id="domain-col"></select>
             </div>
             <div class="modal-field">
-                <label>Price Column</label>
+                <label>价格列</label>
                 <select id="price-col"></select>
             </div>
             <div class="modal-field">
-                <label>Status Column (optional)</label>
+                <label>状态列 (可选)</label>
                 <select id="status-col">
-                    <option value="">-- None --</option>
+                    <option value="">-- 无 --</option>
                 </select>
             </div>
             <div class="modal-field">
-                <label>Notes Column (optional)</label>
+                <label>备注列 (可选)</label>
                 <select id="notes-col">
-                    <option value="">-- None --</option>
+                    <option value="">-- 无 --</option>
                 </select>
             </div>
             <div class="modal-field">
-                <label>Registration Date (optional)</label>
+                <label>注册日期列 (可选)</label>
                 <select id="created-col">
-                    <option value="">-- None --</option>
+                    <option value="">-- 无 --</option>
                 </select>
             </div>
             <div class="modal-field">
-                <label>Expiration Date (optional)</label>
+                <label>到期日期列 (可选)</label>
                 <select id="expiry-col">
-                    <option value="">-- None --</option>
+                    <option value="">-- 无 --</option>
                 </select>
             </div>
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="confirmImport()">Import</button>
+                <button class="btn btn-secondary" onclick="closeImportModal()">取消</button>
+                <button class="btn btn-primary" onclick="confirmImport()">导入</button>
             </div>
         </div>
     </div>
@@ -986,8 +986,8 @@
                 grid.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon"></div>
-                        <h3>${state.domains.length === 0 ? 'NO DOMAINS FOUND' : 'NO MATCHING DOMAINS'}</h3>
-                        <p>${state.domains.length === 0 ? 'Import an Excel file to add domains for sale' : 'Try adjusting your filters'}</p>
+                        <h3>${state.domains.length === 0 ? '暂无域名' : '无匹配域名'}</h3>
+                        <p>${state.domains.length === 0 ? '导入 Excel 文件添加要出售的域名' : '尝试调整筛选条件'}</p>
                     </div>
                 `;
                 return;
@@ -996,9 +996,9 @@
             grid.innerHTML = state.filteredDomains.map(d => {
                 const tld = getTLD(d.domain);
                 const isSold = d.status === 'sold';
-                const statusLabel = isSold ? 'Sold' : (d.status === 'negotiation' ? 'In Negotiation' : 'Available');
+                const statusLabel = isSold ? '已售' : (d.status === 'negotiation' ? '谈判中' : '可售');
                 const daysLeftClass = d.daysLeft !== null ? (d.daysLeft <= 30 ? 'var(--accent-red)' : d.daysLeft <= 90 ? 'var(--accent-amber)' : 'var(--accent-green)') : 'var(--text-muted)';
-                const daysLeftText = d.daysLeft !== null ? (d.daysLeft <= 0 ? 'Expired' : `${d.daysLeft} days`) : '';
+                const daysLeftText = d.daysLeft !== null ? (d.daysLeft <= 0 ? '已过期' : `剩余 ${d.daysLeft} 天`) : '';
 
                 return `
                 <div class="domain-card ${isSold ? 'sold' : ''}" data-id="${d.id}">
@@ -1011,17 +1011,17 @@
                     </div>
                     ${d.createdDate || d.expiryDate ? `
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">
-                        ${d.createdDate ? `<div>Reg: ${d.createdDate}</div>` : ''}
-                        ${d.expiryDate ? `<div>Exp: ${d.expiryDate}</div>` : ''}
+                        ${d.createdDate ? `<div>注册: ${d.createdDate}</div>` : ''}
+                        ${d.expiryDate ? `<div>到期: ${d.expiryDate}</div>` : ''}
                     </div>
                     ` : ''}
                     ${d.notes ? `<div class="notes">${d.notes}</div>` : '<div class="notes"></div>'}
                     <div class="domain-actions">
                         ${!isSold ? `
-                            <a href="mailto:inquire@domains.td?subject=Inquiry: ${d.domain}" class="btn btn-primary">Inquire</a>
-                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">Edit</button>
+                            <a href="mailto:inquire@domains.td?subject=Inquiry: ${d.domain}" class="btn btn-primary">询价</a>
+                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">编辑</button>
                         ` : `
-                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">Edit</button>
+                            <button class="btn btn-secondary" onclick="openEditModal('${d.id}')">编辑</button>
                         `}
                     </div>
                 </div>
@@ -1066,12 +1066,12 @@
                 state.isAdmin = true;
                 document.getElementById('admin-panel').classList.remove('hidden');
                 document.getElementById('admin-btn').classList.add('unlocked');
-                document.getElementById('admin-btn-text').textContent = 'Locked';
+                document.getElementById('admin-btn-text').textContent = '已锁定';
                 document.getElementById('lock-icon').innerHTML = '<path d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>';
                 closePasswordModal();
                 renderDomains();
             } else {
-                alert('Incorrect password');
+                alert('密码错误');
                 document.getElementById('password-input').value = '';
                 document.getElementById('password-input').focus();
             }
@@ -1123,7 +1123,7 @@
 
         function deleteDomain() {
             const id = document.getElementById('edit-id').value;
-            if (!confirm('Delete this domain?')) return;
+            if (!confirm('确定删除此域名？')) return;
 
             state.domains = state.domains.filter(d => d.id !== id);
             saveDomains();
@@ -1133,7 +1133,7 @@
         }
 
         function clearAllDomains() {
-            if (!confirm('Delete ALL domains? This cannot be undone.')) return;
+            if (!confirm('删除所有域名？此操作无法撤销。')) return;
             state.domains = [];
             saveDomains();
             filterDomains();
@@ -1237,7 +1237,7 @@
 
                 document.getElementById('import-overlay').classList.add('visible');
             } catch (err) {
-                alert('Failed to parse Excel: ' + err.message);
+                alert('解析 Excel 失败: ' + err.message);
             }
         }
 
@@ -1288,7 +1288,7 @@
             }
 
             if (newDomains.length === 0) {
-                alert('No valid domains found');
+                alert('未找到有效域名');
                 return;
             }
 
@@ -1301,7 +1301,7 @@
 
         function exportDomains() {
             if (state.domains.length === 0) {
-                alert('No domains to export');
+                alert('没有可导出的域名');
                 return;
             }
 
